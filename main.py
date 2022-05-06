@@ -106,6 +106,8 @@ while True:
             our_types = pokemons[p][1]
             our_stats = pokemons[p][2]
 
+    our_attack = our_stats[1]
+
     stab = 1
     type = 1
     others = float(input("What are the other modifiers (number): "))
@@ -152,9 +154,50 @@ while True:
         else:
             damages.append(0)
 
+    move = legal_moves[damages.index(max(damages))]
+
+    if move[3] in effective[0]:
+        type = 4
+    elif move[3] in effective[1]:
+        type = 2
+    elif move[3] in effective[2]:
+        type = 1
+    elif move[3] in effective[3]:
+        type = 0.5
+    elif move[3] in effective[4]:
+        type = 0.25
+    else:
+        type = 0
+
+    others = other
+
+    if weather == "RAINY" or weather == "RAIN":
+        if move[3] == "WATER":
+            others *= 1.5
+        elif move[3] == "FIRE":
+            others *= 0.5
+    elif weather == "SUNNY":
+        if move[3] == "WATER":
+            others *= 0.5
+        elif move[3] == "FIRE":
+            others *= 1.5
+
+    if move[3] in our_types:
+        stab = 1.5
+    else:
+        stab = 1
+
     print(legal_moves)
     print(damages)
     print("")
-    print(legal_moves[damages.index(max(damages))][0])
+    print(move[0])
     print(max(damages))
+    print("")
+
+    damage = float(input("How much damage did you deal? "))/100
+    hp = functions.base_hp(stats[0])
+    schaden = hp*damage
+    defense = int(functions.defense(schaden, our_attack, stab, type, others, move[1]))
+    print(defense)
+
     break
