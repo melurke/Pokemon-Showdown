@@ -57,9 +57,11 @@ def effective(defender):
         S[16] *= steel[type]
         S[17] *= water[type]
 
+    super_effective = []
     very_effective = []
     effective = []
     not_effective = []
+    not_not_effective = []
     immune = []
 
     for s in range(0, len(S)):
@@ -67,14 +69,20 @@ def effective(defender):
             immune.append(types[s])
         elif S[s] == 1:
             effective.append(types[s])
-        elif S[s] == 0.5 or S[s] == 0.25:
+        elif S[s] == 0.5:
             not_effective.append(types[s])
-        elif S[s] == 2 or S[s] == 4:
+        elif S[s] == 0.25:
+            not_not_effective.append(types[s])
+        elif S[s] == 2:
             very_effective.append(types[s])
+        elif S[s] == 4:
+            super_effective.append(types[s])
 
+    super_effective = list(dict.fromkeys(super_effective))
     very_effective = list(dict.fromkeys(very_effective))
     effective = list(dict.fromkeys(effective))
     not_effective = list(dict.fromkeys(not_effective))
+    not_not_effective = list(dict.fromkeys(not_not_effective))
     immune = list(dict.fromkeys(immune))
 
-    return [very_effective, effective, not_effective, immune]
+    return [super_effective, very_effective, effective, not_effective, not_not_effective, immune]
