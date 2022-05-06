@@ -19,14 +19,15 @@ steel = [1, 1, 1, 0.5, 2, 1, 0.5, 1, 1, 1, 1, 2, 1, 1, 1, 2, 0.5, 0.5]
 water = [1, 1, 0.5, 1, 1, 1, 2, 1, 1, 0.5, 2, 1, 1, 1, 1, 2, 1, 0.5]
 
 def damage(attack, defense, stab, type, others, move_power):
-    base1 = 22*move_power*(attack/defense)
-    base = base1/50 + 2
+    base = (22*move_power*(attack/defense))/50 + 2
 
     damage = base * stab * type * others * 0.925
+    min_damage = base * stab * type * others * 0.85
+    max_damage = base * stab * type * others
 
     # others = weather, critical, burn, screens, effects, terrain
 
-    return damage
+    return [damage, min_damage, max_damage]
 
 def effective(defender):
     defender_index = []
