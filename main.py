@@ -1,203 +1,100 @@
-import ast
-import functions
+types = ["BUG", "DARK", "DRAGON", "ELECTRIC", "FAIRY", "FIGHTING", "FIRE", "FLYING", "GHOST", "GRASS", "GROUND", "ICE", "NORMAL", "POISON", "PSYCHIC", "ROCK", "STEEL", "WATER"]
+bug = [1, 2, 1, 1, 0.5, 0.5, 0.5, 0.5, 0.5, 2, 1, 1, 1, 0.5, 2, 1, 0.5, 1]
+dark = [1, 0.5, 1, 1, 0.5, 0.5, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1]
+dragon = [1, 1, 2, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0.5, 1]
+electric = [1, 1, 0.5, 0.5, 1, 1, 1, 2, 1, 0.5, 0, 1, 1, 1, 1, 1, 1, 2]
+fairy = [1, 2, 2, 1, 1, 2, 0.5, 1, 1, 1, 1, 1, 1, 0.5, 1, 1, 0.5, 1]
+fighting = [0.5, 2, 1, 1, 0.5, 1, 1, 0.5, 0, 1, 1, 2, 2, 0.5, 0.5, 2, 2, 1]
+fire = [2, 1, 0.5, 1, 1, 1, 0.5, 1, 1, 2, 1, 2, 1, 1, 1, 0.5, 2, 0.5]
+flying = [2, 1, 1, 0.5, 1, 2, 1, 1, 1, 2, 1, 1, 1, 1, 1, 0.5, 0.5, 1]
+ghost = [1, 0.5, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 0, 1, 2, 1, 1, 1]
+grass = [0.5, 1, 0.5, 1, 1, 1, 0.5, 0.5, 1, 0.5, 2, 1, 1, 0.5, 1, 2, 0.5, 2]
+ground = [0.5, 1, 1, 2, 1, 1, 2, 0, 1, 0.5, 1, 1, 1, 2, 1, 2, 2, 1]
+ice = [1, 1, 2, 1, 1, 1, 0.5, 2, 1, 2, 2, 0.5, 1, 1, 1, 1, 0.5, 0.5]
+normal = [1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0.5, 0.5, 1]
+poison = [1, 1, 1, 1, 2, 1, 1, 1, 0.5, 2, 0.5, 1, 1, 0.5, 1, 0.5, 0, 1]
+psychic = [1, 0, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 0.5, 1, 0.5, 1]
+rock = [2, 1, 1, 1, 1, 0.5, 2, 2, 1, 1, 0.5, 2, 1, 1, 1, 1, 0.5, 1]
+steel = [1, 1, 1, 0.5, 2, 1, 0.5, 1, 1, 1, 1, 2, 1, 1, 1, 2, 0.5, 0.5]
+water = [1, 1, 0.5, 1, 1, 1, 2, 1, 1, 0.5, 2, 1, 1, 1, 1, 2, 1, 0.5]
 
-while True:
-    index = 0
+def damage(attack, defense, stab, type, others, move_power):
+    base = (22*move_power*(attack/defense))/50 + 2
 
-    file = open("pokemon.txt", "r")
-    pokemon = file.readlines()
-    file.close()
+    damage = base * stab * type * others * 0.925
+    min_damage = base * stab * type * others * 0.85
+    max_damage = base * stab * type * others
 
-    for p in pokemon:
-        try:
-            p.replace("\n", "")
-        except:
-            pass
+    # others = weather, critical, burn, screens, effects, terrain
 
-    for i in range(0, len(pokemon)):
-        pokemon[i] = ast.literal_eval(pokemon[i])
+    return [damage, min_damage, max_damage]
 
-    name = input("Input your opposing pokemon: ")
+def defense(damage, attack, stab, type, others, move_power):
+    defense = attack/(((damage/(stab*type*others)-2)*50)/(move_power*22))
+    return defense
 
-    names = []
+def attack(damage, defense, stab, type, others, move_power):
+    attack = defense*(((damage/(stab*type*others)-2)*50)/(move_power*22))
+    return attack
 
-    for p in pokemon:
-        names.append(p[0])
+def base_hp(base):
+    hp = int(((2*base+31)/2)+60)
+    return hp
 
-    if not name in names:
-        num_of_types = int(input("How many types does the pokemon have? "))
-        types = []
-        stats = []
-        for i in range(0, num_of_types):
-            types.append(input(f"Input the {i+1}. type of the pokemon: ").upper())
-        for i in range(0, 6):
-            stats.append(int(input(f"Input the {i+1}. stat of the pokemon: ")))
+def effective(defender):
+    defender_index = []
 
-        pokemon.append([name, types, stats])
-        index = -1
-    else:
-        for p in range(0, len(pokemon)):
-            if pokemon[p][0] == name:
-                type = pokemon[p][1]
-                stats = pokemon[p][2]
-                index = p
+    for type in defender:
+        defender_index.append(types.index(type))
 
-    print(pokemon[index])
-    types = pokemon[index][1]
-    stats = pokemon[index][2]
-    pokemons = pokemon.copy()
+    S = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 
-    for p in range(0, len(pokemon)):
-        pokemon[p] = str(pokemon[p])
-        pokemon[p] += "\n"
+    for type in defender_index:
+        S[0] *= bug[type]
+        S[1] *= dark[type]
+        S[2] *= dragon[type]
+        S[3] *= electric[type]
+        S[4] *= fairy[type]
+        S[5] *= fighting[type]
+        S[6] *= fire[type]
+        S[7] *= flying[type]
+        S[8] *= ghost[type]
+        S[9] *= grass[type]
+        S[10] *= ground[type]
+        S[11] *= ice[type]
+        S[12] *= normal[type]
+        S[13] *= poison[type]
+        S[14] *= psychic[type]
+        S[15] *= rock[type]
+        S[16] *= steel[type]
+        S[17] *= water[type]
 
-    file = open("pokemon.txt","w")
-    file.writelines(pokemon)
-    file.close()
+    super_effective = []
+    very_effective = []
+    effective = []
+    not_effective = []
+    not_not_effective = []
+    immune = []
 
+    for s in range(0, len(S)):
+        if S[s] == 0:
+            immune.append(types[s])
+        elif S[s] == 1:
+            effective.append(types[s])
+        elif S[s] == 0.5:
+            not_effective.append(types[s])
+        elif S[s] == 0.25:
+            not_not_effective.append(types[s])
+        elif S[s] == 2:
+            very_effective.append(types[s])
+        elif S[s] == 4:
+            super_effective.append(types[s])
 
+    super_effective = list(dict.fromkeys(super_effective))
+    very_effective = list(dict.fromkeys(very_effective))
+    effective = list(dict.fromkeys(effective))
+    not_effective = list(dict.fromkeys(not_effective))
+    not_not_effective = list(dict.fromkeys(not_not_effective))
+    immune = list(dict.fromkeys(immune))
 
-    effective = functions.effective(types)
-
-    print("")
-    print("")
-    print("The following types are super effective:")
-    print(effective[0])
-    print("")
-    print("The following types are very effective:")
-    print(effective[1])
-    print("")
-    print("The following types are effective:")
-    print(effective[2])
-    print("")
-    print("The following types are not very effective:")
-    print(effective[3])
-    print("")
-    print("The following types are not at all effective:")
-    print(effective[4])
-    print("")
-    print("The following types don't deal any damage:")
-    print(effective[5])
-
-    file = open("our_moves.txt","r")
-    moves = file.readlines()
-    file.close()
-    damages = []
-
-    for p in moves:
-        try:
-            p.replace("\n", "")
-        except:
-            pass
-
-    for i in range(0, len(moves)):
-        moves[i] = ast.literal_eval(moves[i])
-
-    weather = input("What is the weather? ").upper()
-
-    our_pokemon = input("What pokemon are you using? ")
-    our_physical_attack_multiplier = float(input("What is your physical attack multiplier? "))
-    our_special_attack_multiplier = float(input("What is your special attack multiplier? "))
-    physical_defense_multiplier = float(input("What is your opponents physical defense multiplier? "))
-    special_defense_multiplier = float(input("What is your opponents special defense multiplier? "))
-    
-    for p in range(0, len(pokemons)):
-        if our_pokemon == pokemons[p][0]:
-            our_types = pokemons[p][1]
-            our_stats = pokemons[p][2]
-
-    our_attack = our_stats[1]
-
-    stab = 1
-    type = 1
-    others = float(input("What are the other modifiers (number): "))
-    other = others
-    legal_moves = []
-    for move in moves:
-        if our_pokemon in move[-1]:
-            legal_moves.append(move)
-    for move in legal_moves:
-        others = other
-        if move[3] in effective[0]:
-            type = 4
-        elif move[3] in effective[1]:
-            type = 2
-        elif move[3] in effective[2]:
-            type = 1
-        elif move[3] in effective[3]:
-            type = 0.5
-        elif move[3] in effective[4]:
-            type = 0.25
-        else:
-            type = 0
-
-        if weather == "RAINY" or weather == "RAIN":
-            if move[3] == "WATER":
-                others *= 1.5
-            elif move[3] == "FIRE":
-                others *= 0.5
-        elif weather == "SUNNY":
-            if move[3] == "WATER":
-                others *= 0.5
-            elif move[3] == "FIRE":
-                others *= 1.5
-
-        if move[3] in our_types:
-            stab = 1.5
-        else:
-            stab = 1
-        
-        if move[4] == "PHYSICAL":
-            damages.append(functions.damage(our_stats[1]*our_physical_attack_multiplier, stats[1]*physical_defense_multiplier, stab, type, others, move[1])[0])
-        elif move[4] == "SPECIAL":
-            damages.append(functions.damage(our_stats[1]*our_special_attack_multiplier, stats[1]*special_defense_multiplier, stab, type, others, move[1])[0])
-        else:
-            damages.append(0)
-
-    move = legal_moves[damages.index(max(damages))]
-
-    if move[3] in effective[0]:
-        type = 4
-    elif move[3] in effective[1]:
-        type = 2
-    elif move[3] in effective[2]:
-        type = 1
-    elif move[3] in effective[3]:
-        type = 0.5
-    elif move[3] in effective[4]:
-        type = 0.25
-    else:
-        type = 0
-
-    others = other
-
-    if weather == "RAINY" or weather == "RAIN":
-        if move[3] == "WATER":
-            others *= 1.5
-        elif move[3] == "FIRE":
-            others *= 0.5
-    elif weather == "SUNNY":
-        if move[3] == "WATER":
-            others *= 0.5
-        elif move[3] == "FIRE":
-            others *= 1.5
-
-    if move[3] in our_types:
-        stab = 1.5
-    else:
-        stab = 1
-
-    print(legal_moves)
-    print(damages)
-    print("")
-    print(move[0])
-    print(max(damages))
-    print("")
-
-    damage = float(input("How much damage did you deal? "))/100
-    hp = functions.base_hp(stats[0])
-    schaden = hp*damage
-    defense = int(functions.defense(schaden, our_attack, stab, type, others, move[1]))
-    print(defense)
-
-    break
+    return [super_effective, very_effective, effective, not_effective, not_not_effective, immune]
