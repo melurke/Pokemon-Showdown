@@ -1,5 +1,5 @@
 ["Behemoth Blade", 100, 1, "STEEL", "PHYSICAL", 1, ["Zacian"]]
-["Close Combat", 120, 1, "FIGHT", "PHYSICAL", 0.67, ["Zacian"]]
+["Close Combat", 120, 1, "FIGHTING", "PHYSICAL", 0.67, ["Zacian"]]
 ["Play Rough", 90, 0.9, "FAIRY", "PHYSICAL", 1.067, ["Zacian"]]
 ["Quick Attack", 40, 1.1, "NORMAL", "PHYSICAL", 1, ["Zacian"]]
 ["Hurricane", 110, 0.7, "FLYING", "SPECIAL", 1.15, ["Zapdos"]]
