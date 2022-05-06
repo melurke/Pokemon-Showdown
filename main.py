@@ -61,17 +61,23 @@ while True:
 
     print("")
     print("")
-    print("The following types are very effective:")
+    print("The following types are super effective:")
     print(effective[0])
     print("")
-    print("The following types are effective:")
+    print("The following types are very effective:")
     print(effective[1])
     print("")
-    print("The following types are not very effective:")
+    print("The following types are effective:")
     print(effective[2])
     print("")
-    print("The following types don't deal any damage:")
+    print("The following types are not very effective:")
     print(effective[3])
+    print("")
+    print("The following types are not at all effective:")
+    print(effective[4])
+    print("")
+    print("The following types don't deal any damage:")
+    print(effective[5])
 
     file = open("our_moves.txt","r")
     moves = file.readlines()
@@ -87,6 +93,8 @@ while True:
     for i in range(0, len(moves)):
         moves[i] = ast.literal_eval(moves[i])
 
+    weather = input("What is the weather? ").upper()
+
     our_pokemon = input("What pokemon are you using? ")
     our_physical_attack_multiplier = float(input("What is your physical attack multiplier? "))
     our_special_attack_multiplier = float(input("What is your special attack multiplier? "))
@@ -101,11 +109,37 @@ while True:
     stab = 1
     type = 1
     others = float(input("What are the other modifiers (number): "))
+    other = others
     legal_moves = []
     for move in moves:
         if our_pokemon in move[-1]:
             legal_moves.append(move)
     for move in legal_moves:
+        others = other
+        if move[3] in effective[0]:
+            type = 4
+        elif move[3] in effective[1]:
+            type = 2
+        elif move[3] in effective[2]:
+            type = 1
+        elif move[3] in effective[3]:
+            type = 0.5
+        elif move[3] in effective[4]:
+            type = 0.25
+        else:
+            type = 0
+
+        if weather == "RAINY" or weather == "RAIN":
+            if move[3] == "WATER":
+                others *= 1.5
+            elif move[3] == "FIRE":
+                others *= 0.5
+        elif weather == "SUNNY":
+            if move[3] == "WATER":
+                others *= 0.5
+            elif move[3] == "FIRE":
+                others *= 1.5
+
         if move[3] in our_types:
             stab = 1.5
         else:
