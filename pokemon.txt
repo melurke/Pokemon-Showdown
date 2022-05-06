@@ -1,4 +1,4 @@
-['Pilkachu', ['ELECTRIC'], [35, 55, 40, 50, 50, 90]]
+['Pikachu', ['ELECTRIC'], [35, 55, 40, 50, 50, 90]]
 ['Ditto', ['NORMAL'], [48, 48, 48, 48, 48, 48]]
 ['Zacian', ['FAIRY', 'STEEL'], [92, 170, 115, 80, 115, 148]]
 ['Zapdos', ['ELECTRIC', 'FLYING'], [90, 90, 85, 125, 90, 100]]
@@ -30,3 +30,4 @@
 ['Calyrex-Shadow', ['PSYCHIC', 'GHOST'], [100, 85, 80, 165, 100, 150]]
 ['Cinderace', ['FIRE'], [80, 116, 75, 65, 75, 119]]
 ['Tyranitar', ['ROCK', 'DARK'], [100, 134, 110, 95, 100, 61]]
+['Xerneas', ['FAIRY'], [126, 131, 95, 131, 98, 99]]
