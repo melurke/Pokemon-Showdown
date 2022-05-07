@@ -25,9 +25,21 @@ def damage(attack, defense, stab, type, others, move_power):
     min_damage = base * stab * type * others * 0.85
     max_damage = base * stab * type * others
 
-    # others = weather, critical, burn, screens, effects, terrain
+    # others = burn, screens, effects, terrain
 
     return [damage, min_damage, max_damage]
+
+def defense(damage, attack, stab, type, others, move_power):
+    defense = attack/((((damage/(stab*type*others))-2)*50)/(move_power*22))
+    return defense
+
+def attack(damage, defense, stab, type, others, move_power):
+    attack = defense*((((damage/(stab*type*others))-2)*50)/(move_power*22))
+    return attack
+
+def base_hp(base):
+    hp = int(((2*base+31)/2)+60)
+    return hp
 
 def effective(defender):
     defender_index = []
@@ -86,3 +98,21 @@ def effective(defender):
     immune = list(dict.fromkeys(immune))
 
     return [super_effective, very_effective, effective, not_effective, not_not_effective, immune]
+
+def lost(our_damage):
+    for damage in our_damage:
+        if damage < 1:
+            return False
+    return True
+
+def won(damages):
+    for damage in damages:
+        if damage < 1:
+            return False
+    return True
+
+def end_game(our_damages, enemy_damages):
+    if lost(our_damages) or won(enemy_damages):
+        return True
+    else:
+        return False
