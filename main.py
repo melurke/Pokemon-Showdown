@@ -1,5 +1,5 @@
 import ast
-from concurrent.futures import thread
+from attr import has
 import functions
 
 team = []
@@ -12,6 +12,7 @@ special_defenses = [0, 0, 0, 0, 0, 0]
 speeds = [0, 0, 0, 0, 0, 0]
 
 our_team = ["Ditto", "Zacian", "Zapdos", "Landorus-Therian", "Kyogre", "Grimmsnarl"]
+our_used_pokemon = ast.literal_eval(input("Which pokemon are you choosing? "))
 total_damage = [0, 0, 0, 0, 0, 0]
 our_hps = [155, 195, 165, 165, 175, 202]
 our_physical_attacks = [61, 244, 85, 197, 94, 125]
@@ -120,6 +121,34 @@ while True:
 
     our_stats = [our_hps[our_team.index(our_pokemon)], our_physical_attacks[our_team.index(our_pokemon)], our_physical_defenses[our_team.index(our_pokemon)], our_special_attacks[our_team.index(our_pokemon)], our_special_attacks[our_team.index(our_pokemon)], our_speeds[our_team.index(our_pokemon)]]
 
+    used_light_screen = 0
+    used_reflect = 0
+    used_stealth_rock = 0
+    has_status_effect = 0
+    if "Grimmsnarl" in our_used_pokemon:
+        used_reflect = input("Is reflect currently active? ")
+        used_light_screen = input("Is light screen currently active? ")
+    if "Landorus-Therian" in our_used_pokemon:
+        used_stealth_rock = input("Is stealth rock currently active? ")
+    if "Grimmsnarl" in our_used_pokemon or "Kyogre" in our_used_pokemon or "Zapdos" in our_used_pokemon:
+        has_status_effect = input("Does your opponent have any status effect? ")
+    if used_reflect == "1":
+        used_reflect = True
+    else:
+        used_reflect = False
+    if used_light_screen == "1":
+        used_light_screen = True
+    else:
+        used_light_screen = False
+    if used_stealth_rock == "1":
+        used_stealth_rock = True
+    else:
+        used_stealth_rock = False
+    if has_status_effect == "1":
+        has_status_effect = True
+    else:
+        has_status_effect = False
+
     our_physical_attack_multiplier = float(input("What is your physical attack multiplier? "))
     our_special_attack_multiplier = float(input("What is your special attack multiplier? "))
     physical_defense_multiplier = float(input("What is your opponents physical defense mulitplier? "))
@@ -138,6 +167,10 @@ while True:
     for i in range(0, len(our_moves)):
         our_moves[i] = ast.literal_eval(our_moves[i])
 
+    if has_status_effect:
+        our_moves[our_moves.index(["Ice Beam", 90, 1, "ICE", "SPECIAL", 1.2, ["Kyogre"]])][-2] = 1
+        our_moves[our_moves.index(["Scald", 80, 1, "WATER", "SPECIAL", 1.15, ["Kyogre"]])][-2] = 1
+
     legal_moves = []
     for move in our_moves:
         if our_pokemon in move[-1]:
@@ -154,62 +187,129 @@ while True:
     hp = functions.base_hp(stats[0])
     real_hp = hp * enemy_hp
 
-    for move in legal_moves:
-        others = 1
+    for move in our_moves:
+        attacking_pokemon = move[-1]
+        for pokemon in attacking_pokemon:
+            for p in pokemon_list:
+                if p[0] == pokemon:
+                    attributes = p
+            if not move in legal_moves:
+                others = 1
 
-        if weather == "RAINY":
-            if move[3] == "WATER":
-                others *= 1.5
-            if move[3] == "FIRE":
-                others *= 0.5
-        elif weather == "SUNNY":
-            if move[3] == "WATER":
-                others *= 0.5
-            if move[3] == "FIRE":
-                others *= 1.5
+                if weather == "RAINY":
+                    if move[3] == "WATER":
+                        others *= 1.5
+                    if move[3] == "FIRE":
+                        others *= 0.5
+                elif weather == "SUNNY":
+                    if move[3] == "WATER":
+                        others *= 0.5
+                    if move[3] == "FIRE":
+                        others *= 1.5
 
-        if move[3] in our_types:
-            stab = 1.5
+                if move[3] in attributes[1]:
+                    stab = 1.5
+                else:
+                    stab = 1
+                
+                if move[3] in effective[0]:
+                    type = 4
+                elif move[3] in effective[1]:
+                    type = 2
+                elif move[3] in effective[2]:
+                    type = 1
+                elif move[3] in effective[3]:
+                    type = 0.5
+                elif move[3] in effective[4]:
+                    type = 0.25
+                else:
+                    type = 0
+                
+                stab_attacks.append(stab)
+                type_attacks.append(type)
+                others_attacks.append(others)
+                if move[4] == "SPECIAL":
+                    damages.append(functions.damage(functions.base_ev(attributes[2][1], our_evs[1]), functions.base_ev(stats[2], evs[2])*special_defense_multiplier, stab, type, others, move[1])[0])
+                elif move[4] == "PHYSICAL":
+                    damages.append(functions.damage(functions.base_ev(attributes[2][3], our_evs[3]), functions.base_ev(stats[4], evs[4])*physical_defense_multiplier, stab, type, others, move[1])[0])
+                elif move[4] == "STATUS":
+                    damages.append(0)
+                else:
+                    print("Couldn't find type for the attack: " + move[0])
+
+                theoretical_damages.append(damages[-1]/real_hp)
+            else:
+                others = 1
+
+                if weather == "RAINY":
+                    if move[3] == "WATER":
+                        others *= 1.5
+                    if move[3] == "FIRE":
+                        others *= 0.5
+                elif weather == "SUNNY":
+                    if move[3] == "WATER":
+                        others *= 0.5
+                    if move[3] == "FIRE":
+                        others *= 1.5
+
+                if move[3] in our_types:
+                    stab = 1.5
+                else:
+                    stab = 1
+                
+                if move[3] in effective[0]:
+                    type = 4
+                elif move[3] in effective[1]:
+                    type = 2
+                elif move[3] in effective[2]:
+                    type = 1
+                elif move[3] in effective[3]:
+                    type = 0.5
+                elif move[3] in effective[4]:
+                    type = 0.25
+                else:
+                    type = 0
+                
+                stab_attacks.append(stab)
+                type_attacks.append(type)
+                others_attacks.append(others)
+                if move[4] == "SPECIAL":
+                    damages.append(functions.damage(functions.base_ev(our_stats[1], our_evs[1])*our_special_attack_multiplier, functions.base_ev(stats[2], evs[2])*special_defense_multiplier, stab, type, others, move[1])[0])
+                elif move[4] == "PHYSICAL":
+                    damages.append(functions.damage(functions.base_ev(our_stats[3], our_evs[3])*our_physical_attack_multiplier, functions.base_ev(stats[4], evs[4])*physical_defense_multiplier, stab, type, others, move[1])[0])
+                elif move[4] == "STATUS":
+                    damages.append(0)
+                else:
+                    print("Couldn't find type for the attack: " + move[0])
+
+                theoretical_damages.append(damages[-1]/real_hp)
+
+    for move in our_moves:
+        if functions.can_do_move(our_used_pokemon, move):
+            if move[0] == "Reflect" and used_reflect:
+                move_values.append(0)
+            elif move[0] == "Light Screen" and used_light_screen:
+                move_values.append(0)
+            elif move[0] == "Stealth Rock" and used_stealth_rock:
+                move_values.append(0)
+            elif move[0] == "Thunder Wave" and has_status_effect:
+                move_values.append(0)
+            else:
+                if move in legal_moves:
+                    move_values.append((((damages[our_moves.index(move)]/hp)*0.77)+1)*move[5])
+                else:
+                    move_values.append(((((damages[our_moves.index(move)]/hp)*0.77)+1)*move[5])/2)
         else:
-            stab = 1
-        
-        if move[3] in effective[0]:
-            type = 4
-        elif move[3] in effective[1]:
-            type = 2
-        elif move[3] in effective[2]:
-            type = 1
-        elif move[3] in effective[3]:
-            type = 0.5
-        elif move[3] in effective[4]:
-            type = 0.25
-        else:
-            type = 0
-        
-        stab_attacks.append(stab)
-        type_attacks.append(type)
-        others_attacks.append(others)
-        if move[4] == "SPECIAL":
-            damages.append(functions.damage(our_stats[1]*our_special_attack_multiplier, stats[1]*special_defense_multiplier, stab, type, others, move[1])[0])
-        elif move[4] == "PHYSICAL":
-            damages.append(functions.damage(our_stats[1]*our_physical_attack_multiplier, stats[1]*physical_defense_multiplier, stab, type, others, move[1])[0])
-        elif move[4] == "STATUS":
-            damages.append(0)
-        else:
-            print("Couldn't find type for the attack: " + move[0])
+            move_values.append(0)
 
-        theoretical_damages.append(damages[-1]/real_hp)
-
-    for move in legal_moves:
-        move_values.append((((damages[legal_moves.index(move)]/hp)*0.77)+1)*move[5])
-
-    attack = legal_moves[move_values.index(max(move_values))]
+    attack = our_moves[move_values.index(max(move_values))]
     print(attack)
 
     stab = stab_attacks[damages.index(max(damages))]
     type = type_attacks[damages.index(max(damages))]
     others = others_attacks[damages.index(max(damages))]
-    print(attack[0] + ": " + str(int(damages[legal_moves.index(attack)])))
+    print(attack[0] + ": " + str(max(move_values)))
+    print(move_values)
 
     damage = float(input("How much damage did you deal? "))
     total_damage_dealt[team.index(name)] += damage
@@ -226,22 +326,7 @@ while True:
         special_defenses[team.index(name)] = int(functions.defense(real_damage, our_stats[1]*our_special_attack_multiplier, stab, type, others, attack[1]))
         print("Enemy's special defense: " + str(special_defenses[team.index(name)]))
 
-
-
-
-
-
-
-
-
-
-
-
-
     if False:
-
-        
-
         legal_moves = []
         for move in our_moves:
             if our_pokemon in move[-1]:
