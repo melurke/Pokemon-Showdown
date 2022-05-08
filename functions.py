@@ -121,3 +121,9 @@ def end_game(our_damages, enemy_damages):
         return True
     else:
         return False
+
+def can_do_move(used_pokemon, move):
+    for pokemon in used_pokemon:
+        if pokemon in move[-1]:
+            return True
+    return False
