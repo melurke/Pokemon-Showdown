@@ -182,10 +182,15 @@ while True:
     others_attacks = []
     theoretical_damages = []
     move_values = []
+    attack = []
     others = float(input("What are the other factors (number)? "))
     weather = input("What is the weather? ").upper()
     hp = functions.base_hp(stats[0])
     real_hp = hp * enemy_hp
+    if stats[1] >= stats[3]:
+        reflect_or_light_screen = True
+    else:
+        reflect_or_light_screen = False
 
     for move in our_moves:
         attacking_pokemon = move[-1]
@@ -302,7 +307,18 @@ while True:
         else:
             move_values.append(0)
 
-    attack = our_moves[move_values.index(max(move_values))]
+    if not used_reflect and not used_light_screen:
+        if our_moves[move_values.index(max(move_values))][0] == "Reflect" or our_moves[move_values.index(max(move_values))][0] == "Light Screen":
+            if reflect_or_light_screen:
+                for move in our_moves:
+                    if move[0] == "Reflect":
+                        attack = move
+            else:
+                for move in our_moves:
+                    if move[0] == "Light Screen":
+                        attack = move
+    if attack == []:
+        attack = our_moves[move_values.index(max(move_values))]
     print(attack)
 
     stab = stab_attacks[damages.index(max(damages))]
@@ -385,8 +401,8 @@ while True:
         others = others_attacks[damages.index(max(damages))]
         print(attack[0] + ": " + str(int(max(damages))/hp))
 
-
+    if input("Did your pokemon die? ") == "1":
+        our_used_pokemon.remove(our_pokemon)
 
     if functions.end_game(total_damage, total_damage_dealt):
         break
-    break
