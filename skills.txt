@@ -1,0 +1,7 @@
+effective types against enemy
+damage calculator
+best move
+defense evs of enemy
+status moves (not Roost)
+weather
+setup
