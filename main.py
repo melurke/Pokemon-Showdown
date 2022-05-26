@@ -1,5 +1,4 @@
 import ast
-from attr import has
 import functions
 
 team = []
@@ -11,15 +10,14 @@ special_attacks = [0, 0, 0, 0, 0, 0]
 special_defenses = [0, 0, 0, 0, 0, 0]
 speeds = [0, 0, 0, 0, 0, 0]
 
-our_team = ["Ditto", "Zacian", "Zapdos", "Landorus-Therian", "Kyogre", "Grimmsnarl"]
-our_used_pokemon = ast.literal_eval(input("Which pokemon are you choosing? "))
+our_team = ["Toxapex", "Aron", "Zapdos", "Landorus-Therian", "Hitmonlee", "Grimmsnarl"]
 total_damage = [0, 0, 0, 0, 0, 0]
-our_hps = [155, 195, 165, 165, 175, 202]
-our_physical_attacks = [61, 244, 85, 197, 94, 125]
-our_physical_defenses = [68, 135, 105, 110, 111, 122]
-our_special_attacks = [68, 90, 177, 112, 202, 103]
-our_special_defenses = [68, 135, 111, 100, 160, 101]
-our_speeds = [110, 173, 167, 157, 156, 81]
+our_hps = [50, 50, 165, 165, 50, 202]
+our_physical_attacks = [63, 70, 85, 197, 120, 125]
+our_physical_defenses = [152, 100, 105, 110, 53, 122]
+our_special_attacks = [53, 40, 177, 112, 35, 103]
+our_special_defenses = [142, 40, 111, 100, 110, 101]
+our_speeds = [35, 30, 167, 157, 87, 81]
 
 while True:
     index = 0
@@ -125,13 +123,13 @@ while True:
     used_reflect = 0
     used_stealth_rock = 0
     has_status_effect = 0
-    if "Grimmsnarl" in our_used_pokemon:
-        used_reflect = input("Is reflect currently active? ")
-        used_light_screen = input("Is light screen currently active? ")
-    if "Landorus-Therian" in our_used_pokemon:
-        used_stealth_rock = input("Is stealth rock currently active? ")
-    if "Grimmsnarl" in our_used_pokemon or "Kyogre" in our_used_pokemon or "Zapdos" in our_used_pokemon:
-        has_status_effect = input("Does your opponent have any status effect? ")
+    used_reflect = input("Is reflect currently active? ")
+    used_light_screen = input("Is light screen currently active? ")
+    used_stealth_rock = input("Is stealth rock currently active? ")
+    used_sandstorm = input("Is sandstorm currently active? ")
+    used_toxic_spikes = input("Has toxic spikes been used twice? ")
+    used_protect = input("Have you used a protecting move before? ")
+    has_status_effect = input("Does your opponent have any status effect? ")
     if used_reflect == "1":
         used_reflect = True
     else:
@@ -144,6 +142,18 @@ while True:
         used_stealth_rock = True
     else:
         used_stealth_rock = False
+    if used_sandstorm == "1":
+        used_sandstorm = True
+    else:
+        used_sandstorm = False
+    if used_toxic_spikes == "1":
+        used_toxic_spikes = True
+    else:
+        used_toxic_spikes = False
+    if used_protect == "1":
+        used_protect = True
+    else:
+        used_protect = False
     if has_status_effect == "1":
         has_status_effect = True
     else:
@@ -290,22 +300,31 @@ while True:
                 theoretical_damages.append(damages[-1]/real_hp)
 
     for move in our_moves:
-        if functions.can_do_move(our_used_pokemon, move):
-            if move[0] == "Reflect" and used_reflect:
-                move_values.append(0)
-            elif move[0] == "Light Screen" and used_light_screen:
-                move_values.append(0)
-            elif move[0] == "Stealth Rock" and used_stealth_rock:
-                move_values.append(0)
-            elif move[0] == "Thunder Wave" and has_status_effect:
-                move_values.append(0)
-            else:
-                if move in legal_moves:
+        if move[0] == "Reflect" and used_reflect:
+            move_values.append(0)
+        elif move[0] == "Light Screen" and used_light_screen:
+            move_values.append(0)
+        elif move[0] == "Stealth Rock" and used_stealth_rock:
+            move_values.append(0)
+        elif move[0] == "Sandstorm" and used_sandstorm:
+            move_values.append(0)
+        elif move[0] == "Toxic Spikes" and used_toxic_spikes:
+            move_values.append(0)
+        elif move[0] in ["Baneful Bunker", "Endure"] and used_protect:
+            move_values.append(0)
+        elif move[0] == "Thunder Wave" and has_status_effect:
+            move_values.append(0)
+        else:
+            if move in legal_moves:
+                if move[4] == "STATUS":
+                    move_values.append(move[5])
+                else:
                     move_values.append((((damages[our_moves.index(move)]/hp)*0.77)+1)*move[5])
+            else:
+                if move[4] == "STATUS":
+                    move_values.append(move[5]/2)
                 else:
                     move_values.append(((((damages[our_moves.index(move)]/hp)*0.77)+1)*move[5])/2)
-        else:
-            move_values.append(0)
 
     if not used_reflect and not used_light_screen:
         if our_moves[move_values.index(max(move_values))][0] == "Reflect" or our_moves[move_values.index(max(move_values))][0] == "Light Screen":
@@ -342,67 +361,15 @@ while True:
         special_defenses[team.index(name)] = int(functions.defense(real_damage, our_stats[1]*our_special_attack_multiplier, stab, type, others, attack[1]))
         print("Enemy's special defense: " + str(special_defenses[team.index(name)]))
 
-    if False:
-        legal_moves = []
-        for move in our_moves:
-            if our_pokemon in move[-1]:
-                legal_moves.append(move)
-        damages = []
-        stab_attacks = []
-        type_attacks = []
-        others_attacks = []
-        for move in legal_moves:
-            others = 1
-
-            if weather == "RAINY":
-                if move[3] == "WATER":
-                    others *= 1.5
-                if move[3] == "FIRE":
-                    others *= 0.5
-            elif weather == "SUNNY":
-                if move[3] == "WATER":
-                    others *= 0.5
-                if move[3] == "FIRE":
-                    others *= 1.5
-
-            if move[3] in our_types:
-                stab = 1.5
-            else:
-                stab = 1
-            
-            if move[3] in effective[0]:
-                type = 4
-            elif move[3] in effective[1]:
-                type = 2
-            elif move[3] in effective[2]:
-                type = 1
-            elif move[3] in effective[3]:
-                type = 0.5
-            elif move[3] in effective[4]:
-                type = 0.25
-            else:
-                type = 0
-            
-            stab_attacks.append(stab)
-            type_attacks.append(type)
-            others_attacks.append(others)
-            if move[4] == "SPECIAL":
-                damages.append(functions.damage(our_stats[1]*our_special_attack_multiplier, special_defenses[team.index(name)]*special_defense_multiplier, stab, type, others, move[1])[0])
-            elif move[4] == "PHYSICAL":
-                damages.append(functions.damage(our_stats[1]*our_physical_attack_multiplier, physical_defenses[team.index(name)]*physical_defense_multiplier, stab, type, others, move[1])[0])
-            elif move[4] == "STATUS":
-                damages.append(0)
-            else:
-                print("Couldn't find type for the attack: " + move[0])
-
-        attack = legal_moves[damages.index(max(damages))]
-        stab = stab_attacks[damages.index(max(damages))]
-        type = type_attacks[damages.index(max(damages))]
-        others = others_attacks[damages.index(max(damages))]
-        print(attack[0] + ": " + str(int(max(damages))/hp))
-
     if input("Did your pokemon die? ") == "1":
-        our_used_pokemon.remove(our_pokemon)
+        index = our_team.index(our_pokemon)
+        our_team.remove(our_team[index])
+        our_hps.remove(our_hps[index])
+        our_physical_attacks.remove(our_physical_attacks[index])
+        our_physical_defenses.remove(our_physical_defenses[index])
+        our_special_attacks.remove(our_special_defenses[index])
+        our_special_defenses.remove(our_special_defenses[index])
+        our_speeds.remove(our_speeds[index])
 
     if functions.end_game(total_damage, total_damage_dealt):
         break
