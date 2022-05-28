@@ -9,7 +9,7 @@ pyautogui.moveTo(1830, 80)
 pyautogui.dragTo(1730, 80, 0.2, button='left')
 pyautogui.click(730, 380)
 
-for letter in list("& C:/Users/Max/AppData/Local/Microsoft/WindowsApps/python3.10.exe 'c:/Users/Max/.vscode/Pokemon Showdown/open_website.py'"):
+for letter in list("& python_path 'program_path'"):
     pyautogui.press(letter)
 pyautogui.press('enter')
 
